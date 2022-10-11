@@ -142,9 +142,9 @@ def productarrange(dftmp):
         tmpvalue = ""
         for m in tmp:
             # print(m)
-            tmpvalue = tmpvalue + dftmp.columns.values[m] + " "
+            tmpvalue = tmpvalue + dftmp.columns.values[m] + " < "
         # print(tmpvalue.strip())
-        arrangeresult.append(tmpvalue.strip())
+        arrangeresult.append(tmpvalue.strip(" < "))
     # print(arrangeresult)
 
     return arrangeresult
@@ -246,7 +246,9 @@ def main1(filepath):
         writer = pd.ExcelWriter(reportpath)
         dftmp = df.iloc[:, 2:]
         # print(dftmp)
-        df["产品数量排序"] = pd.Series(productarrange(dftmp)).str.replace(" ", "<")
+        prosort = productarrange(dftmp)
+        # print(prosort)
+        df["产品数量排序"] = pd.Series(prosort)
         df.to_excel(writer, index=False)
         writer.save()
         writer.close()
