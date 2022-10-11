@@ -156,7 +156,7 @@ def getresult(driver, df, filepath):
     try:
         for cnt in range(1, len(colName)):
             productNumReslut = []
-            if cnt == 1:
+            if cnt == 1 and colName[1] == "wu":
                 productName = ""
             else:
                 productName = " " + colName[cnt]
@@ -241,6 +241,11 @@ def main1(filepath):
     try:
         df = getSubjectName(filepath)
         print(df)
+        colname = df.columns.values
+        for i in range(1, len(df)):
+            if df[colname[i]].dtype is np.dtype('O'):
+                df[colname[i]] = df[colname[i]].str.replace(",", "").astype('int64')
+            # print(df[colname[i]])                         
         # reportpath = os.path.splitext(filepath)[0] + "-亚马逊检测报告" + ".xlsx"
         reportpath = os.path.splitext(filepath)[0] + "-tmp" + ".xlsx"
         writer = pd.ExcelWriter(reportpath)
