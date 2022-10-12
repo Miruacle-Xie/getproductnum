@@ -249,7 +249,8 @@ def main1(filepath):
         df = getSubjectName(filepath)
         print(df)
         colname = df.columns.values
-        for i in range(1, len(df)):
+        for i in range(1, len(colname)):
+            # print(df[colname[i]].dtype)
             if df[colname[i]].dtype is np.dtype('O'):
                 df[colname[i]] = df[colname[i]].str.replace(",", "").astype('int64')
             # print(df[colname[i]])                         
