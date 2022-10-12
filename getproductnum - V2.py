@@ -163,36 +163,43 @@ def getresult(driver, df, filepath):
 
             for i in range(len(df)):
                 # for i in range(2):
-                print("第{}次验证".format((i + 1)))
-                print('{:30s}{}       {}'.format('getAmazonResult-start', time.strftime('%Y-%m-%d %H:%M:%S'),
-                                                 (df[colName[0]][i] + productName).capitalize()))
-                accessFlag, pageSource = getAmazonResult(driver, df[colName[0]][i] + productName)
-                print('{:30s}{}'.format('getAmazonResult-end', time.strftime('%Y-%m-%d %H:%M:%S')))
+                if np.isnan(df[colName[cnt]][i]):
+                    print("第{}次验证".format((i + 1)))
+                    print('{:30s}{}       {}'.format('getAmazonResult-start', time.strftime('%Y-%m-%d %H:%M:%S'),
+                                                     (df[colName[0]][i] + productName).capitalize()))
+                    accessFlag, pageSource = getAmazonResult(driver, df[colName[0]][i] + productName)
+                    print('{:30s}{}'.format('getAmazonResult-end', time.strftime('%Y-%m-%d %H:%M:%S')))
 
-                try:
-                    if accessFlag:
-                        searchResult = re.search(
-                            r"<span>.* of over (.*) results for</span>|<span>.* of (.*) results for</span>|<span>(.*) results for</span>",
-                            pageSource)
+                    try:
+                        if accessFlag:
+                            searchResult = re.search(
+                                r"<span>.* of over (.*) results for</span>|<span>.* of (.*) results for</span>|<span>(.*) results for</span>",
+                                pageSource)
 
-                        if searchResult is not None:
-                            # for j in range(1, len(searchResult)):
-                            for tmpsearchResult in searchResult.groups():
-                                if tmpsearchResult is not None:
-                                    productNumReslut.append(tmpsearchResult)
-                                    # print(tmpsearchResult)
-                        else:
-                            productNumReslut.append("0")
-                except Exception as e:
-                    print(repr(e))
-                    print("第{}次验证异常-{}".format((i + 1), (df[colName[0]][i] + productName).capitalize()))
-                    exepath = sys.executable
-                    exepath = os.path.dirname(exepath)
-                    pageSourceContent = exepath + '\\' + "pageSourceContent.txt"
-                    fd = open(pageSourceContent, mode='w', encoding="utf8")
-                    fd.write(pageSource)
-                    fd.close()
-            df[colName[cnt]] = pd.Series(productNumReslut)
+                            if searchResult is not None:
+                                # for j in range(1, len(searchResult)):
+                                for tmpsearchResult in searchResult.groups():
+                                    if tmpsearchResult is not None:
+                                        productNumReslut.append(tmpsearchResult)
+                                        # print(tmpsearchResult)
+                            else:
+                                productNumReslut.append("0")
+                    except Exception as e:
+                        print(repr(e))
+                        print("第{}次验证异常-{}".format((i + 1), (df[colName[0]][i] + productName).capitalize()))
+                        exepath = sys.executable
+                        exepath = os.path.dirname(exepath)
+                        pageSourceContent = exepath + '\\' + "pageSourceContent.txt"
+                        fd = open(pageSourceContent, mode='w', encoding="utf8")
+                        fd.write(pageSource)
+                        fd.close()
+                else:
+                    productNumReslut.append(None)
+            # df[colName[cnt]] = pd.Series(productNumReslut)
+            productNumReslut = pd.DataFrame({colName[cnt]: productNumReslut})
+            # 将空白的合并
+            df[colName[cnt]] = df[colName[cnt]].where(df[colName[cnt]].notnull(), productNumReslut[colName[cnt]])
+
     finally:
         reportpath = os.path.splitext(filepath)[0] + "-亚马逊检测报告" + ".xlsx"
         writer = pd.ExcelWriter(reportpath)
@@ -282,6 +289,23 @@ if __name__ == "__main__":
             input("请输入小写y,再重新使用")
     else:
         main(filePath)
+
+    # df = pd.read_excel("916-亚马逊检测报告.xlsx")
+    # print(df)
+    # print(len(df))
+    # list = []
+    # for i in range(4):
+    #     if np.isnan(df[df.columns.values[4]][i]):
+    #         list.append(int(1))
+    #     else:
+    #         list.append(None)
+    # print(type(list))
+    # list = pd.DataFrame({'cup': list})
+    # print(list)
+    # print(type(list))
+    # df["aa"] = df['cup'].where(df['cup'].notnull(), list['cup'])
+    # print(df['aa'])
+
     # lis = np.array([413,172,20])
     # sorted_index = sorted(range(len(lis)), key=lambda k: lis[k])
     # print(sorted_index)
