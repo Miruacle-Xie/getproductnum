@@ -163,7 +163,7 @@ def getresult(driver, df, filepath):
 
             for i in range(len(df)):
                 # for i in range(2):
-                if np.isnan(df[colName[cnt]][i]):
+                if pd.isna(df[colName[cnt]][i]):
                     print("第{}次验证".format((i + 1)))
                     print('{:30s}{}       {}'.format('getAmazonResult-start', time.strftime('%Y-%m-%d %H:%M:%S'),
                                                      (df[colName[0]][i] + productName).capitalize()))
