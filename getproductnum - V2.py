@@ -163,7 +163,7 @@ def getresult(driver, df, filepath):
 
             for i in range(len(df)):
                 # for i in range(2):
-                if pd.isna(df[colName[cnt]][i]):
+                if pd.isna(df[colName[cnt]][i]) or "error" in df[colName[cnt]][i]:
                     print("第{}次验证".format((i + 1)))
                     print('{:30s}{}       {}'.format('getAmazonResult-start', time.strftime('%Y-%m-%d %H:%M:%S'),
                                                      (df[colName[0]][i] + productName).capitalize()))
@@ -184,7 +184,11 @@ def getresult(driver, df, filepath):
                                         # print(tmpsearchResult)
                             else:
                                 productNumReslut.append("0")
+                        else:
+                            productNumReslut.append("error")
+                            # print("第{}次验证异常-{}".format((i + 1), (df[colName[0]][i] + productName).capitalize()))
                     except Exception as e:
+                        productNumReslut.append("error")
                         print(repr(e))
                         print("第{}次验证异常-{}".format((i + 1), (df[colName[0]][i] + productName).capitalize()))
                         exepath = sys.executable
@@ -199,6 +203,7 @@ def getresult(driver, df, filepath):
             productNumReslut = pd.DataFrame({colName[cnt]: productNumReslut})
             # 将空白的合并
             df[colName[cnt]] = df[colName[cnt]].where(df[colName[cnt]].notnull(), productNumReslut[colName[cnt]])
+            df[colName[cnt]] = df[colName[cnt]].mask(df[colName[cnt]].str.contains("error"), productNumReslut[colName[cnt]])
 
     finally:
         reportpath = os.path.splitext(filepath)[0] + "-亚马逊检测报告" + ".xlsx"
