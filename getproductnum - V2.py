@@ -25,7 +25,9 @@ DEBUG = True
 
 def amazonDeliverInit(driver):
     url = "https://www.amazon.com"
-    deliverList = ["10041", "87509", "35238", "36125", "35816"]
+    deliverList = ["10041", "87509", "35238", "36125", "35816", "78154", "33578", "34238", "74733", "55021", "63383",
+                   "07748", "04450", "48315", "84720", "18443", "90034", "75081", "33510", "48195", "37046", "30736",
+                   "78746", "34759", "33181"]
     deliverId = random.randint(0, len(deliverList)-1)
     try:
         logtext = []
@@ -171,7 +173,7 @@ def getresult(driver, df, filepath):
 
             for i in range(len(df)):
                 # for i in range(2):
-                if pd.isna(df[colName[cnt]][i]) or "error" in df[colName[cnt]][i]:
+                if pd.isna(df[colName[cnt]][i]) or "error" in df[colName[cnt]][i] or "nan" in df[colName[cnt]][i]:
                     print("第{}次验证".format((i + 1)))
                     print('{:30s}{}       {}'.format('getAmazonResult-start', time.strftime('%Y-%m-%d %H:%M:%S'),
                                                      (df[colName[0]][i] + productName).capitalize()))
@@ -211,6 +213,7 @@ def getresult(driver, df, filepath):
             productNumReslut = pd.DataFrame({colName[cnt]: productNumReslut})
             # 将空白的合并
             df[colName[cnt]] = df[colName[cnt]].where(df[colName[cnt]].notnull(), productNumReslut[colName[cnt]])
+            df[colName[cnt]] = df[colName[cnt]].mask(df[colName[cnt]].str.contains("nan"), productNumReslut[colName[cnt]])
             df[colName[cnt]] = df[colName[cnt]].mask(df[colName[cnt]].str.contains("error"), productNumReslut[colName[cnt]])
 
     finally:
