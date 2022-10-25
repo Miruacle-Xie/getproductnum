@@ -25,6 +25,8 @@ DEBUG = True
 
 def amazonDeliverInit(driver):
     url = "https://www.amazon.com"
+    deliverList = ["10041", "87509", "35238", "36125", "35816"]
+    deliverId = random.randint(0, len(deliverList)-1)
     try:
         logtext = []
         driver.get(url)
@@ -32,14 +34,14 @@ def amazonDeliverInit(driver):
         content = driver.page_source
         logtext.append("driver.page_source")
         # input("111")
-        if "New York 10041" not in content:
+        if deliverList[deliverId] not in content:
             logtext.append("开始设置配送地址...")
             tmplog = driver.find_element_by_xpath('//*[@id="nav-packard-glow-loc-icon"]').click()
             logtext.append(tmplog)
             tmplog = WebDriverWait(driver, 10).until(
                 EC.visibility_of_element_located((By.XPATH, '//*[@id="GLUXZipUpdateInput"]')))  # 元素是否可见
             logtext.append(tmplog)
-            tmplog = driver.find_element_by_xpath('//*[@id="GLUXZipUpdateInput"]').send_keys("10041")
+            tmplog = driver.find_element_by_xpath('//*[@id="GLUXZipUpdateInput"]').send_keys(deliverList[deliverId])
             logtext.append(tmplog)
             time.sleep(1)
             tmplog = driver.find_element_by_xpath('//*[@id="GLUXZipUpdate"]/span/input').click()
@@ -51,18 +53,19 @@ def amazonDeliverInit(driver):
             # fd = open("1.txt", mode='w', encoding="utf8")
             # fd.write(content1)
             # fd.close()
-            if "New York 10041" not in content1:
+            if deliverList[deliverId] not in content1:
                 print("设置地址失败")
                 return False
             else:
-                print("地址设为10041成功")
+                print("地址{}成功".format(deliverList[deliverId]))
                 return True
         else:
             print("初始化成功")
             return True
     except Exception as e:
         print("设置地址异常")
-        repr(e)
+        print(repr(e))
+        '''
         logtext.append(repr(e))
         exepath = sys.executable
         print(exepath)
@@ -78,6 +81,7 @@ def amazonDeliverInit(driver):
         fd = open(logFile, mode='w', encoding="utf8")
         fd.write(str(logtext))
         fd.close()
+        '''
         return False
 
 
@@ -102,6 +106,7 @@ def getAmazonResult(driver, subjectName):
         # driver.find_element_by_xpath('//*[@id="twotabsearchtextbox"]').send_keys(Keys.ENTER)
         driver.find_element_by_xpath('//*[@id="nav-search-submit-button"]').click()
         print('{:30s}{}'.format('getAmazonResult-<ENTER>-end', time.strftime('%Y-%m-%d %H:%M:%S')))
+        # input("111")
         pageSource = driver.page_source
 
         # =============================================================================
@@ -155,8 +160,11 @@ def getresult(driver, df, filepath):
     colName = df.columns.values
     try:
         for cnt in range(1, len(colName)):
+            if df[colName[cnt]].dtype is not np.dtype('O'):
+                df[colName[cnt]] = df[colName[cnt]].astype('str')
             productNumReslut = []
-            if cnt == 1 and colName[1] == "wu":
+            # if cnt == 1 and colName[1] == "wu":
+            if cnt == 1:
                 productName = ""
             else:
                 productName = " " + colName[cnt]
@@ -181,7 +189,7 @@ def getresult(driver, df, filepath):
                                 for tmpsearchResult in searchResult.groups():
                                     if tmpsearchResult is not None:
                                         productNumReslut.append(tmpsearchResult)
-                                        # print(tmpsearchResult)
+                                        print(tmpsearchResult)
                             else:
                                 productNumReslut.append("0")
                         else:
@@ -296,6 +304,36 @@ if __name__ == "__main__":
     else:
         main(filePath)
 
+    # df = pd.read_excel("11.xlsx")
+    # print(df)
+    # colName = df.columns.values
+    # print(df.dtypes)
+    # for i in range(1, len(colName)):
+    #     # print(df[colname[i]].dtype)
+    #     if df[colName[i]].dtype is not np.dtype('O'):
+    #         df[colName[i]] = df[colName[i]].astype('str')
+    # print(df.dtypes)
+    #
+    # for cnt in range(1, len(colName)):
+    #     print(df[colName[cnt]].dtype)
+    #     productNumReslut = []
+    #     # if cnt == 1 and colName[1] == "wu":
+    #     if cnt == 1:
+    #         productName = ""
+    #     else:
+    #         productName = " " + colName[cnt]
+    #
+    #     for i in range(len(df)):
+    #         # for i in range(2):
+    #         print(df[colName[cnt]][i])
+    #         print(type(df[colName[cnt]][i]))
+    #         if pd.isna(df[colName[cnt]][i]):
+    #             print("NONE{}:{}".format(cnt, i))
+    #         elif "-1" in df[colName[cnt]][i]:
+    #             print("ERROR{}:{}".format(cnt, i))
+    #         else:
+    #             # print("{}:{}:{}".format(cnt, i, df[colName[cnt]][i]))
+    #             pass
     # df = pd.read_excel("916-亚马逊检测报告.xlsx")
     # print(df)
     # print(len(df))
